@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/userdb
+    username: ${DB_USERNAME:userservice}
+    password: ${DB_PASSWORD:changeme}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate   # never let Hibernate auto-generate schema — Flyway is the only source of truth
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+server:
+  port: 8081
