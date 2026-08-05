@@ -1,0 +1,7 @@
+CREATE TYPE user_status AS ENUM (
+    'PENDING_VERIFICATION',
+    'ACTIVE',
+    'LOCKED'
+);
+
+CREATE TABLE user 
