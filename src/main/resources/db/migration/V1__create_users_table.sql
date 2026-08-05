@@ -5,9 +5,9 @@ CREATE TYPE user_status AS ENUM (
 );
 
 CREATE TABLE users (
-    user_id VARCHAR PRIMARY KEY,
+    user_id UUID PRIMARY KEY,
     email VARCHAR UNIQUE NOT NULL,
     password_hash VARCHAR NOT NULL,
-    status user_status,
+    status user_status NOT NULL,
     creation_date TIMESTAMP NOT NULL
 );
