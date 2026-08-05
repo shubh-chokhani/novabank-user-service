@@ -3,14 +3,20 @@ package com.novabank.userservice.domain;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "users")
 public class User {
     
     @Id
@@ -24,8 +30,10 @@ public class User {
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private UserStatus status;
 
+    @CreationTimestamp
     private Timestamp creationDate;
 
     public User() {
@@ -66,10 +74,6 @@ public class User {
 
     public UUID getUserId() {
         return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
     }
 
     public String getEmail() {

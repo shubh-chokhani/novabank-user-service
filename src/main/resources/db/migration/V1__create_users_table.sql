@@ -4,4 +4,10 @@ CREATE TYPE user_status AS ENUM (
     'LOCKED'
 );
 
-CREATE TABLE user 
+CREATE TABLE users (
+    user_id VARCHAR PRIMARY KEY,
+    email VARCHAR UNIQUE NOT NULL,
+    password_hash VARCHAR NOT NULL,
+    status user_status,
+    creation_date TIMESTAMP NOT NULL
+);
