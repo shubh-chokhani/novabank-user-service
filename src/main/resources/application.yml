@@ -1,7 +1,15 @@
 spring:
   application:
     name: user-service
-
+  config:
+    import: vault://
+  cloud:
+    vault:
+      uri: http://localhost:8210
+      token: dev-root-token
+      kv:
+        enabled: true
+        backend: secret
   datasource:
     url: jdbc:postgresql://localhost:5432/userdb
     username: ${DB_USERNAME:userservice}
@@ -13,6 +21,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          time_zone: UTC
 
   flyway:
     enabled: true
@@ -24,4 +34,4 @@ spring:
       port: ${REDIS_PORT:6379}
 
 server:
-  port: 8081
+  port: 9000
