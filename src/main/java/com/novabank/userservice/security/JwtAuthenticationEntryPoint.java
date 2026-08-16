@@ -15,10 +15,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-        String message = switch (authException.getClass().getSimpleName()) {
-            case "ExpiredJwtException" -> "Token has expired";
-            default -> "Invalid JWT token";
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        String message = switch (request.getAttribute("jwt_error").toString()) {
+            case "EXPIRED" -> "Token has expired";
+            case "INVALID" -> "Invalid JWT token";
+            default -> "Unauthorized";
         };
         response.getWriter().write(message);
     }
