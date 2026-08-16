@@ -1,15 +1,6 @@
 spring:
   application:
     name: user-service
-  config:
-    import: vault://
-  cloud:
-    vault:
-      uri: http://localhost:8210
-      token: dev-root-token
-      kv:
-        enabled: true
-        backend: secret
   datasource:
     url: jdbc:postgresql://localhost:5432/userdb
     username: ${DB_USERNAME:userservice}
@@ -32,6 +23,9 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+
+jwt:
+  secret: ${JWT_SECRET:ny1MN6lxqYorKsF+/VVdkDz2iRG834dYzlNfS+EMVZ8=}
 
 server:
   port: 9000

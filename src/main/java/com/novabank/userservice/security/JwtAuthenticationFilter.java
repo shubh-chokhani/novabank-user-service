@@ -1,11 +1,12 @@
 package com.novabank.userservice.security;
 
-import static ch.qos.logback.core.util.StringUtil.isNullOrEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 import java.io.IOException;
-import java.net.http.HttpHeaders;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,11 +22,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class JwtAuthenticationFliter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtService jwtService;
 
-    public JwtAuthenticationFliter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
 
@@ -32,7 +35,7 @@ public class JwtAuthenticationFliter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
-        if (isNullOrEmpty(authorization) || !authorization.startsWith("Bearer ")) {
+        if (hasText(authorization) || !authorization.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -43,7 +46,10 @@ public class JwtAuthenticationFliter extends OncePerRequestFilter {
             Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, List.of());
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
+        } catch (ExpiredJwtException e) {
+            log.debug("Expired JWT token: {}", token);
         } catch (JwtException | IllegalArgumentException e) {
+            log.warn("Invalid JWT token: {}", token, e);
             SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);

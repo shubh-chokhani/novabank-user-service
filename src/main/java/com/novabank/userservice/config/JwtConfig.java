@@ -13,7 +13,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtConfig {
 
     @Bean
-    public SecretKey secretKey(@Value("${jwt-secret}") String secret) {
+    public SecretKey secretKey(@Value("${jwt.secret}") String secret) {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 }
