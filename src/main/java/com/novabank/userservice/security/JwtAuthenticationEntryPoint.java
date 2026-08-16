@@ -16,7 +16,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        String message = switch (request.getAttribute("jwt_error").toString()) {
+        String jwtError = request.getAttribute("jwt_error") != null ? (String) request.getAttribute("jwt_error") : "";
+        String message = switch (jwtError) {
             case "EXPIRED" -> "Token has expired";
             case "INVALID" -> "Invalid JWT token";
             default -> "Unauthorized";
