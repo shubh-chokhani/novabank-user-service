@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
         if (!hasText(authorization) || !authorization.startsWith("Bearer ")) {
+            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
@@ -49,8 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String userId = claims.getSubject();
             String cachedToken = redisTemplate.opsForValue().get(userId);
             if (!token.equals(cachedToken)) {
-                request.setAttribute("jwt_error", "SESSION_REVOKED");
-                SecurityContextHolder.clearContext();
+                setRequestAttributeAndClearContext(request, "jwt_error", "SESSION_REVOKED");
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -59,14 +59,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .setAuthentication(authentication);
         } catch (ExpiredJwtException e) {
             log.debug("Expired JWT token: {}", token);
-            request.setAttribute("jwt_error", "EXPIRED");
+            setRequestAttributeAndClearContext(request, "jwt_error", "EXPIRED");
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("Invalid JWT token: {}", token, e);
-            request.setAttribute("jwt_error", "INVALID");
-            SecurityContextHolder.clearContext();
-        } catch(RedisConnectionFailureException e) {
+            setRequestAttributeAndClearContext(request, "jwt_error", "INVALID");
+        } catch (RedisConnectionFailureException e) {
+            log.error("Redis unavailable during session check", e);
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Service Unavailable");
+            return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    private void setRequestAttributeAndClearContext(HttpServletRequest request, String attribute, String value) {
+        request.setAttribute(attribute, value);
+        SecurityContextHolder.clearContext();
     }
 }
