@@ -20,6 +20,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         String message = switch (jwtError) {
             case "EXPIRED" -> "Token has expired";
             case "INVALID" -> "Invalid JWT token";
+            case "SESSION_REVOKED" -> "Session revoked";
             default -> "Unauthorized";
         };
         response.getWriter().write(message);

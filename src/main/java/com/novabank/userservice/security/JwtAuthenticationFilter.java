@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,9 +27,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtService jwtService;
+    private final StringRedisTemplate redisTemplate;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtService jwtService, StringRedisTemplate redisTemplate) {
         this.jwtService = jwtService;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -43,6 +46,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             Claims claims = jwtService.verifyAndExtract(token);
             String userId = claims.getSubject();
+            String cachedToken = redisTemplate.opsForValue().get(userId);
+            if (!token.equals(cachedToken)) {
+                request.setAttribute("jwt_error", "SESSION_REVOKED");
+                SecurityContextHolder.clearContext();
+                filterChain.doFilter(request, response);
+                return;
+            }
             Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, List.of());
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
