@@ -1,14 +1,16 @@
 spring:
   application:
     name: user-service
+  config:
+    import: optional:file:.env[.properties]
   datasource:
-    url: jdbc:postgresql://localhost:5432/userdb
-    username: ${DB_USERNAME:userservice}
-    password: ${DB_PASSWORD:changeme}
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: validate   # never let Hibernate auto-generate schema — Flyway is the only source of truth
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
@@ -25,7 +27,7 @@ spring:
       port: ${REDIS_PORT:6379}
 
 jwt:
-  secret: ${JWT_SECRET:ny1MN6lxqYorKsF+/VVdkDz2iRG834dYzlNfS+EMVZ8=}
+  secret: ${JWT_SECRET}
   expiry: ${JWT_EXPIRY:600000}
 
 server:
