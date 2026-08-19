@@ -26,6 +26,7 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET:ny1MN6lxqYorKsF+/VVdkDz2iRG834dYzlNfS+EMVZ8=}
+  expiry: ${JWT_EXPIRY:600000}
 
 server:
   port: 9000

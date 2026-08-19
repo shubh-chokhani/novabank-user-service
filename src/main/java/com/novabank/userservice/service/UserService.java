@@ -2,7 +2,8 @@ package com.novabank.userservice.service;
 
 import static com.novabank.userservice.domain.UserStatus.ACTIVE;
 import static com.novabank.userservice.domain.UserStatus.PENDING_VERIFICATION;
-import static java.util.Objects.isNull;
+
+import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,10 +33,11 @@ public class UserService {
     }
 
     public String loginUser(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        if (isNull(user)) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
             throw new LoginException("User not found", email);
         }
+        User user = userOptional.get();
         if (user.getStatus() != ACTIVE) {
             throw new LoginException("User is not active", email);
         }

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.novabank.userservice.dto.LoginRequest;
+import com.novabank.userservice.dto.RegisterUserRequest;
 import com.novabank.userservice.service.UserService;
 
 import jakarta.validation.Valid;
@@ -20,7 +21,7 @@ public class AuthController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<String> register(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterUserRequest request) {
         userService.registerUser(request.getEmail(), request.getPassword());
         return ResponseEntity.ok("Check your mailbox");
     }

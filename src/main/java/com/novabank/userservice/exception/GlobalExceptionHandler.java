@@ -1,5 +1,7 @@
 package com.novabank.userservice.exception;
 
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,13 +23,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<?> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         log.warn("Database persistence failed: ", ex);
-        //TODO: send a mail to the email id
+        // TODO: send a mail to the email id
         return ResponseEntity.ok("Check your mailbox");
     }
 
     @ExceptionHandler(LoginException.class)
     public ResponseEntity<?> handleLoginException(LoginException ex) {
-        log.warn("Login failed for email {}: ", ex.getEmail(), ex);
-        return ResponseEntity.badRequest().body("Invalid email or password");
+        log.info("Login failed for email {}: ", ex.getEmail(), ex);
+        return ResponseEntity.status(UNAUTHORIZED)
+                .body("Invalid email or password");
     }
 }
