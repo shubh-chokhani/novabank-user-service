@@ -63,7 +63,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("Invalid JWT token: {}", token, e);
             setRequestAttributeAndClearContext(request, "jwt_error", "INVALID");
-        } catch (DataAccessException e) {
+        }
+        // DataAccessException is Spring's root DAO exception, shared across
+        // JDBC/JPA/Redis —
+        // intentionally broad here since this catch is scoped to a single Redis call.
+        // If this try block ever grows to include a non-Redis data-access call,
+        // revisit this catch so unrelated DB errors don't get reported as
+        // Redis-unavailable/503.
+        catch (DataAccessException e) {
             log.error("Redis unavailable during session check", e);
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Service Unavailable");
             return;

@@ -3,6 +3,9 @@ spring:
     name: user-service
   config:
     import: optional:file:.env[.properties]
+  data:
+    redis:
+      timeout: 2000ms
   datasource:
     url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
     username: ${POSTGRES_USER}
