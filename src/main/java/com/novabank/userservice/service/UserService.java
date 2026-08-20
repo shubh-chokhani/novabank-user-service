@@ -4,6 +4,7 @@ import static com.novabank.userservice.domain.UserStatus.ACTIVE;
 import static com.novabank.userservice.domain.UserStatus.PENDING_VERIFICATION;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,9 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new LoginException("Wrong password", email);
         }
-        String token = jwtService.generateToken(user.getUserId());
-        jwtService.storeToken(user.getUserId(), token);
+        UUID userId = user.getUserId();
+        String token = jwtService.generateToken(userId);
+        jwtService.storeToken(userId, token);
         return token;
     }
 
