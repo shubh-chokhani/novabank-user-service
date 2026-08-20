@@ -37,7 +37,9 @@ import com.novabank.userservice.security.JwtService;
 
 import io.jsonwebtoken.Jwts;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+                "spring.data.redis.timeout=2s"
+})
 public class AuthControllerIntegrationTest extends AbstractIntegrationTest {
 
         @Autowired
@@ -286,5 +288,21 @@ public class AuthControllerIntegrationTest extends AbstractIntegrationTest {
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                                 .andExpect(status().isUnauthorized())
                                 .andExpect(content().string("Session revoked"));
+        }
+
+        @Test
+        void requestWhenRedisUnavailable_returnsServiceUnavailable() throws Exception {
+                UUID userId = UUID.randomUUID();
+                String token = jwtService.generateToken(userId);
+
+                redis.getDockerClient().pauseContainerCmd(redis.getContainerId()).exec();
+                try {
+                        mockMvc.perform(get("/protected")
+                                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                                        .andExpect(status().isServiceUnavailable());
+
+                } finally {
+                        redis.getDockerClient().unpauseContainerCmd(redis.getContainerId()).exec();
+                }
         }
 }

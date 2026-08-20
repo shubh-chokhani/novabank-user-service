@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -63,7 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("Invalid JWT token: {}", token, e);
             setRequestAttributeAndClearContext(request, "jwt_error", "INVALID");
-        } catch (RedisConnectionFailureException e) {
+        } catch (DataAccessException e) {
             log.error("Redis unavailable during session check", e);
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Service Unavailable");
             return;
